@@ -39,8 +39,8 @@ identityApplication =
         (IR.Elim (IR.Prim (Natural 1)))
     )
 
-identityAppI ∷ Elim
-identityAppI =
+identityAppINat1 ∷ Elim
+identityAppINat1 =
   IR.App
     ( IR.App
         ( IR.Ann
@@ -62,23 +62,25 @@ identityAppI =
     )
     (IR.Elim (IR.Prim (Natural 1)))
 
-identityAppIContTy ∷ Annotation
-identityAppIContTy =
-  ( SNat 0,
-    IR.VPi
-      (SNat 0)
-      (IR.VPi (SNat 0) (IR.VPrimTy Nat) (const (IR.VPrimTy Nat)))
-      (const (IR.VPi (SNat 0) (IR.VPrimTy Nat) (const (IR.VPrimTy Nat))))
-  )
-
-identityAppICompTy ∷ Annotation
-identityAppICompTy =
-  ( SNat 1,
-    IR.VPi
-      (SNat 1)
-      (IR.VPi (SNat 1) (IR.VPrimTy Nat) (const (IR.VPrimTy Nat)))
-      (const (IR.VPi (SNat 1) (IR.VPrimTy Nat) (const (IR.VPrimTy Nat))))
-  )
+identityAppI ∷ Elim
+identityAppI =
+  IR.App
+    ( IR.Ann
+        (SNat 1)
+        identity
+        ( IR.Pi
+            (SNat 1)
+            (IR.Pi (SNat 1) (IR.PrimTy Nat) (IR.PrimTy Nat))
+            (IR.Pi (SNat 1) (IR.PrimTy Nat) (IR.PrimTy Nat))
+        )
+    )
+    ( IR.Elim
+        ( IR.Ann
+            (SNat 1)
+            identity
+            (IR.Pi (SNat 1) (IR.PrimTy Nat) (IR.PrimTy Nat))
+        )
+    )
 
 kcombinator ∷ Term -- K = \x.\y.x
 kcombinator = IR.Lam (IR.Lam (IR.Elim (IR.Bound 1)))
@@ -95,8 +97,11 @@ test_identity_contemplation = shouldCheck identity identityContTy
 test_identity_application ∷ T.TestTree
 test_identity_application = shouldCheck identityApplication natTy
 
+test_identity_app_I_Nat1 ∷ T.TestTree
+test_identity_app_I_Nat1 = shouldInfer identityAppINat1 natTy
+
 test_identity_app_I ∷ T.TestTree
-test_identity_app_I = shouldInfer identityAppI natTy
+test_identity_app_I = shouldInfer identityAppI identityCompTy
 
 test_nats_type_star0 ∷ T.TestTree
 test_nats_type_star0 = shouldCheck (IR.PrimTy Nat) (SNat 0, IR.VStar 0)
